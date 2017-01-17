@@ -1,0 +1,51 @@
+---
+title: "ECL 233 Assignment 1"
+author: "Michael Culshaw-Maurer"
+date: "1/11/2017"
+output: html_document
+---
+
+RickRoll is function to iterate Ricker model one time step. nt is n(t), r is growth rate, k is carrying capacity. Function returns n1, which is n(t+1)
+
+```{r}
+RickRoll <- function(nt, r, k){
+  n1 <- nt*exp(r*(1-nt/k)) # Ricker equation
+  return(n1) # return the next value after N(t)
+}
+```
+
+BevMo is function to iterate Beverton-Holt model one time step. nt is n(t), r is growth rate, k is carrying capacity. Function returns n1, which is n(t+1)
+
+```{r}
+BevMo <- function(nt, r, k){
+  n1 <- (exp(r)*nt)/(1+exp(r)*nt/k) # Beverton-Holt equation
+  return(n1) # return the next value after N(t)
+}
+```
+
+
+saving some baseline values
+
+```{r}
+nt <- 1:200 # range of N(t) values (going above the carrying capacity)
+r <- 1.2 # growth rate
+k <- 100 # carrying capacity
+```
+
+
+generating and saving results for N(t+1) for each model given the same inputs
+
+```{r}
+rick <- RickRoll(nt,r,k)
+bev <- BevMo(nt,r,k)
+```
+
+
+plotting the results from each model against N(t), adding some color and a legend. I also added a line with slope=1, which helps to show whether N(t+1) is greater or less than N(t).
+
+```{r}
+plot(nt, rick, type="l", col="red", xlab="N(t)", ylab="N(t+1)") # generate plot and Ricker curve
+lines(nt, bev, col="blue") # add the Beverton-Holt curve
+lines(nt,nt, col="black") # add a line with slope=1
+legend("bottomright", legend=c("Ricker", "Beverton-Holt", "slope of 1"), col=c("red","blue", "black"), lty = c(1,1,1)) # add a legend for all three lines
+```
