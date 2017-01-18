@@ -1,0 +1,84 @@
+---
+title: "Assignment2"
+author: "Michael Culshaw-Maurer"
+date: "1/17/2017"
+output: html_document
+---
+
+Write up the Ricker model function:
+```{r}
+RickRoll <- function(nt, r, k){
+  nt1 <- nt*exp(r*(1-nt/k))
+  return(nt1)
+}
+```
+
+Using the suggested parameter values:
+```{r}
+k <- 100 # carrying capacity
+n0 <- 50 # starting population size
+tf <- 100 # number of time steps to iterate over
+```
+
+Now creating the stuff for the for loop simulation:
+```{r}
+vr <- c(1.5,2.3,2.6,3.6) # creating a vector of r values to use
+Nvr <- length(vr) # this is the length of the r value vector
+r <- matrix(NA,nrow=tf,ncol=Nvr) # creating an empty matrix with length of the time series,
+                                 # and as many columns as r values we'll use
+str(r) # checking the structure of the matrix
+r[1,] <- rep(n0,Nvr) # putting in our starting value as the first time step entry
+for(t in 1:(tf-1)){ # loop through all of the time steps
+  r[t+1,] <- RickRoll(r[t,],r=vr,k=k) # use the vector of r values
+}
+
+```
+
+Plot our results:
+```{r}
+# plot over the time series, the results of the simulation, and color them by r value
+# also changing the ylim to make a little more room for the legend
+matplot(1:tf,r,type = "l", ylim=c(0,max(r))+75,col = c("black","blue","red","green"),lty = rep(1.4))
+# add a legend with the r value lines marked out
+legend("topright", title = "r =", col=c("black","blue","red","green"),legend=c("1.5","2.3","2.6","3.6"),lty = rep(1,4),cex=0.75)
+```
+
+Alright, time for a bifurcation diagram.
+
+First, let's clear the values and make some new parameters:
+
+```{r}
+rm(n)
+rm(r)
+rm(t)
+
+k <- 100 # carrying capacity
+n0 <- 50 # starting pop size
+tf <- 500 # number of time steps to take
+```
+
+Creating stuff for the for loop simulation:
+
+```{r}
+vr <- seq(from=1.5,to=3.6,by=0.001) # creating a vector of r values to use
+Nvr <- length(vr) # this is the length of the r value vector
+r <- matrix(NA,nrow=tf,ncol=Nvr) # creating an empty matrix with length of the time series,
+                                 # and as many columns as r values we'll use
+str(r) # checking the structure of the matrix
+r[1,] <- rep(n0,Nvr) # putting in our starting value as the first time step entry
+for(t in 1:(tf-1)){ # loop through all of the time steps
+  r[t+1,] <- RickRoll(r[t,],r=vr,k=k) # use the vector of r values
+}
+```
+
+Time to plot:
+```{r}
+r2 <- r[(tf-39):tf,] # create a new matrix with only the last 40 time points
+str(r2) # check the structure to make sure it worked
+plot(vr,r2[1,], pch=".", xlab="r", ylab="pop size") # plot the vector of r values against the first
+# set of population sizes and time points
+for(i in 2:40) points(vr,r2[i,],pch=".") # use a for loop to plot the rest of the time points
+```
+
+
+
