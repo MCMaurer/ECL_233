@@ -1,5 +1,5 @@
 ---
-title: "Assignment2"
+title: "Assignment 2"
 author: "Michael Culshaw-Maurer"
 date: "1/17/2017"
 output: html_document
@@ -17,12 +17,12 @@ Using the suggested parameter values:
 ```{r}
 k <- 100 # carrying capacity
 n0 <- 50 # starting population size
-tf <- 100 # number of time steps to iterate over
+tf <- 40 # number of time steps to iterate over
 ```
 
 Now creating the stuff for the for loop simulation:
 ```{r}
-vr <- c(1.5,2.3,2.6,3.6) # creating a vector of r values to use
+vr <- c(1.5,2.3,2.6,3.0) # creating a vector of r values to use
 Nvr <- length(vr) # this is the length of the r value vector
 r <- matrix(NA,nrow=tf,ncol=Nvr) # creating an empty matrix with length of the time series,
                                  # and as many columns as r values we'll use
@@ -38,9 +38,9 @@ Plot our results:
 ```{r}
 # plot over the time series, the results of the simulation, and color them by r value
 # also changing the ylim to make a little more room for the legend
-matplot(1:tf,r,type = "l", ylim=c(0,max(r))+75,col = c("black","blue","red","green"),lty = rep(1.4))
+matplot(1:tf,r,type = "l",xlab="Time",ylab="Pop Size", ylim=c(0,max(r))+50,col = c("black","blue","red","green"),lty = rep(1.4))
 # add a legend with the r value lines marked out
-legend("topright", title = "r =", col=c("black","blue","red","green"),legend=c("1.5","2.3","2.6","3.6"),lty = rep(1,4),cex=0.75)
+legend("topright", title = "r =", col=c("black","blue","red","green"),legend=c("1.5","2.3","2.6","3.0"),lty = rep(1,4),cex=0.75)
 ```
 
 Alright, time for a bifurcation diagram.
@@ -48,7 +48,6 @@ Alright, time for a bifurcation diagram.
 First, let's clear the values and make some new parameters:
 
 ```{r}
-rm(n)
 rm(r)
 rm(t)
 
@@ -80,5 +79,36 @@ plot(vr,r2[1,], pch=".", xlab="r", ylab="pop size") # plot the vector of r value
 for(i in 2:40) points(vr,r2[i,],pch=".") # use a for loop to plot the rest of the time points
 ```
 
+Aaaaaaand just for fun, let's make a bifurcation diagram with the Lyapunov Exponents plotted on top of it:
+```{r}
 
+f=function(r,x)x*exp(r*(1-x)) # function for Ricker
+fp=function(r,x)exp(r*(1-x))*(1-r*x) # function for derivative of Ricker
+Tf=1000 # how long to calculate lyapunov for
+
+lyap=numeric(Nvr) # vector to store the lyapunov exponents, length of vr used above
+x=n0 # initial densities same as for the bifurcation diagram
+
+for(t in 1:Tf){
+  x=f(vr,x) # updating the x values for all the r values
+  lyap=lyap+log(abs(fp(vr,x))) # summing up all the logs of absolute values of derivatives
+}
+
+lyap=lyap/Tf # we want average stretch over time, so we divide by length of the run
+```
+
+Time to plot:
+```{r}
+par(mar=c(5,3,4,3)) # change margins to make room for two y axes
+plot(vr,r2[1,], pch=".", xlab="r",ylab=NA) # plot initial bifurcation diagram points
+mtext(side=2,line=2,"Pop Size") # add axis label
+for(j in 2:40) points(vr,r2[j,],pch=".") # plot the rest of the bifurcation diagram points
+par(new=T) # add a new plot on top of the old one
+plot(vr,lyap,type="l",col="red",axes=F,xlab=NA,ylab=NA) # plot lyapunov exponents against vr
+axis(side=4) # add a second y axis on the right side
+mtext(side=4,line=2,"Lyapunov Exponent") # add a second y axis label
+abline(h=0,lty=2,col="red") # add a dashed line showing a lyapunov exponent of 0
+abline(v=c(2.0,3.1575),lty=2,col=rep("black",2)) # add a few dashed lines to see how bifurcation matches up with lyapunov
+
+```
 

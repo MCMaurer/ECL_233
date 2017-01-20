@@ -45,38 +45,42 @@ for(t in 1:(tf-1)){
 
 ####
 
-rm(n)
+rm(x)
+rm(lyap)
+
+f=function(r,x)x*exp(r*(1-x))
+fp=function(r,x)exp(r*(1-x))*(1-r*x)
 Tf=1000
 
 # a vector to store the values in and the initial densities
 lyap=numeric(Nvr)
-n=n0
+x=n0
 
 for(t in 1:Tf){
-  n=f(r,n) # updating the n values for all the r values
-  lyap=lyap+log(abs(fp(vr,n))) # summing up all the logs of absolute values of derivatives
+  x=f(vr,x) # updating the n values for all the r values
+  lyap=lyap+log(abs(fp(vr,x))) # summing up all the logs of absolute values of derivatives
 }
-#lyap
+length(lyap)
 lyap=lyap/Tf
 
 #####
 
-
-
-
-
 str(r)
 r2 <- r[(tf-79):tf,]
 str(r2)
-plot(vr,r2[1,], pch=".", xlab="r", ylab="pop size")
-for(i in 2:80) points(vr,r2[i,],pch=".")
-par(new=T)
-plot(vr,lyap,type="l",col="red",axes=F,xlab=NA,ylab=NA)
-axis(side=4)
-mtext(side=4,line=3,"Lyapunov Exponent")
 
+par(mar=c(5,3,4,3)) # change margins to make room for two y axes
+plot(vr,r2[1,], pch=".", xlab="r",ylab=NA) # plot initial bifurcation diagram points
+mtext(side=2,line=2,"Pop Size") # add axis label
+for(j in 2:40) points(vr,r2[j,],pch=".") # plot the rest of the bifurcation diagram points
+par(new=T) # add a new plot on top of the old one
+plot(vr,lyap,type="l",col="red",axes=F,xlab=NA,ylab=NA) # plot lyapunov exponents against vr
+axis(side=4) # add a second y axis on the right side
+mtext(side=4,line=2,"Lyapunov Exponent") # add a second y axis label
+abline(h=0,lty=2,col="red") # add a dashed line showing a lyapunov exponent of 0
+abline(v=c(2.0,3.1575),lty=2,col="black") # add a dashed line to see how bifurcation matches up with lyapunov
 
-
+#### 
 
 
 
