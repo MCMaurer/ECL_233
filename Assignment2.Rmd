@@ -17,7 +17,7 @@ Using the suggested parameter values:
 ```{r}
 k <- 100 # carrying capacity
 n0 <- 50 # starting population size
-tf <- 40 # number of time steps to iterate over
+tf <- 80 # number of time steps to iterate over
 ```
 
 Now creating the stuff for the for loop simulation:
