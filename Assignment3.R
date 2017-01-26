@@ -39,15 +39,21 @@ Nt[,10]
 ## This works, but how to iterate over values of f?
 
 
-#### Ok here's the stuff for plot 1 ####
-eigenvalues <- rep(NA,length(1:75))
 
-for(b in 1:75){
-  eigenvalues[b] <- Re(eigen(A2(n0,b))$values[1])
+
+#### Ok here's the stuff for plot 1 ####
+fseq <- (0:75)
+eigenvalues <- rep(NA,length(fseq))
+
+for(b in fseq){
+  eigenvalues[b+1] <- Re(eigen(A2(n0,b))$values[1])
 }
 length(eigenvalues)
-plot(1:75,eigenvalues,type="p", xlab="f")
+plot(fseq,eigenvalues,type="p", xlab="f")
 abline(h=1,lty=2,col="red")
+
+
+## this might be wrong... 
 
 #### now time for plot 2 ####
 
@@ -64,28 +70,48 @@ a=0.01
 tf <- 500
 nstg <- ncol(TS) # number of stages in the matrix
 n0 <- c(2,rep(0,nstg-1)) # initial population vector
-f <- seq(from=0,to=75,by=1)
-Ntf <- array(NA,c(length(f),nstg,tf)) # create an array of length(f) matrices
-for(f in 1:length(f)) Ntf[f,,1] <- n0
+fseq <- seq(from=0,to=75,by=1)
+Ntf <- array(NA,c(length(fseq),nstg,tf)) # create an array of length(f) matrices
+for(a in 1:length(fseq)) Ntf[a,,1] <- n0
 Ntf[1,,]
 
-A2(Ntf[1,,1],50)
 
 
 
 
+# for(t in 1:(tf-1)){
+#   for(b in 1:75){
+#     Ntf[b,,t+1] <- A2(Ntf[b,,t],f=b)%*%Ntf[b,,t]
+#   }
+# }
+
+## i think this works
 for(t in 1:(tf-1)){
-  for(b in 1:75){
-    Ntf[b,,t+1] <- A2(Ntf[b,,t],f=b)%*%Ntf[b,,t]
+  for(b in fseq){
+    Ntf[b+1,,t+1] <- A2(Ntf[b+1,,t],f=b)%*%Ntf[b+1,,t]
   }
 }
+
+##
+# 
+# for(t in 1:(tf-1)){
+#   Ntf[b+1,,t+1] <- A2(Ntf[b+1,,t],f=f)%*%Ntf[b+1,,t]
+# }
+
+
+# 
+# for(t in 1:(tf-1)){
+#   for(b in 0:75){
+#     Ntf[b+1,,t+1] <- A2(Ntf[b+1,,t],f=b)%*%Ntf[b,,t]
+#   }
+# }
 
 ## ok Ntf is filled with good values now. Now I just need to sum all the t=500 values for each matrix
 
 sum(Ntf[1,,500])
 sum(Ntf[75,,500])
 length(Ntf[,1,1])
-Ntf[75,,]
+Ntf[76,,]
 
 totals <- rep(NA,length(Ntf[,1,1]))
 for(i in 1:length(Ntf[,1,1])){
