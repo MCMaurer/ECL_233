@@ -72,7 +72,7 @@ nstg <- ncol(TS) # number of stages in the matrix
 n0 <- c(2,rep(0,nstg-1)) # initial population vector
 fseq <- seq(from=0,to=75,by=1)
 Ntf <- array(NA,c(length(fseq),nstg,tf)) # create an array of length(f) matrices
-for(a in 1:length(fseq)) Ntf[a,,1] <- n0
+for(x in 1:length(fseq)) Ntf[x,,1] <- n0
 Ntf[1,,]
 
 
@@ -91,6 +91,28 @@ for(t in 1:(tf-1)){
     Ntf[b+1,,t+1] <- A2(Ntf[b+1,,t],f=b)%*%Ntf[b+1,,t]
   }
 }
+
+#### now trying something new ####
+
+# gonna try to simply store the 500th value as a matrix ranging with f
+tf <- 500
+fseq <- 0:75
+a <- 0.01
+nstg <- ncol(TS) # number of stages in the matrix
+Nt <- matrix(NA, length(fseq),nstg)
+n0 <- c(2,rep(0,nstg-1)) # initial population vector
+for(i in length(fseq)){
+  Nt[i,] <- n0 
+}
+
+
+
+for(t in 1:(tf-1)){
+  Nt[f+1,] <- A2(Nt[f+1,],f=fseq)%*%Nt[f+1,]
+}
+
+
+
 
 ##
 # 

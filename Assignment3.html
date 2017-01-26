@@ -139,7 +139,7 @@ eigenvalues &lt;- rep(NA,length(f)) # make an eigenvalues vector of the right le
 for(b in f){
   eigenvalues[b+1] &lt;- Re(eigen(A2(0,b))$values[1])
 }
-# I used n0 into the A2 function since it still needs a population state vector as an input. However, it isn't taken into account in the linearization since a=0. The vector could really be anything, it just needs to still be an input.</code></pre>
+# I used 0 so that we just use f, since 1 + a*sum(N) is 1. a is also 0, so it doesn't really matter, we just need to put something in for N in the A2 function</code></pre>
 <p>Plot it up:</p>
 <pre class="r"><code>length(eigenvalues) # check the length to be sure</code></pre>
 <pre><code>## [1] 76</code></pre>
