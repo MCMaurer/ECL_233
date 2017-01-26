@@ -80,6 +80,20 @@ for(t in 1:(tf-1)){
   }
 }
 
+for(t in 1:(tf-1)){
+  for(b in 0:75){
+    Ntf[b+1,,t+1] <- A2(Ntf[b+1,,t],f=b)%*%Ntf[b,,t]
+  }
+}
+
+
+
+for(t in 1:(tf-1)){
+  for(b in 0:75){
+    Ntf[b+1,,t+1] <- A2(Ntf[b+1,,t],f=b)%*%Ntf[b,,t]
+  }
+}
+
 ## ok Ntf is filled with good values now. Now I just need to sum all the t=500 values for each matrix
 
 sum(Ntf[1,,500])
