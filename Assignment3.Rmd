@@ -52,7 +52,7 @@ tf <- 500
 nstg <- ncol(TS) # number of stages in the matrix
 n0 <- c(2,rep(0,nstg-1)) # initial population vector
 Ntf <- array(NA,c(length(f),nstg,tf)) # create an array of length(f) matrices
-for(a in 1:length(f)) Ntf[a,,1] <- n0 # populate the array of matrices with the starting vector
+for(x in 1:length(f)) Ntf[x,,1] <- n0 # populate the array of matrices with the starting vector
 ```
 
 
