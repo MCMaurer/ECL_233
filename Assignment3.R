@@ -39,14 +39,16 @@ Nt[,10]
 ## This works, but how to iterate over values of f?
 
 
-#### Ok here's the stuff for plot 1 ####
-eigenvalues <- rep(NA,length(1:75))
 
-for(b in 1:75){
-  eigenvalues[b] <- Re(eigen(A2(n0,b))$values[1])
+
+#### Ok here's the stuff for plot 1 ####
+eigenvalues <- rep(NA,length(0:75))
+
+for(b in 0:75){
+  eigenvalues[b+1] <- Re(eigen(A2(n0,b))$values[1])
 }
 length(eigenvalues)
-plot(1:75,eigenvalues,type="p", xlab="f")
+plot(0:75,eigenvalues,type="p", xlab="f")
 abline(h=1,lty=2,col="red")
 
 #### now time for plot 2 ####
@@ -69,7 +71,6 @@ Ntf <- array(NA,c(length(f),nstg,tf)) # create an array of length(f) matrices
 for(f in 1:length(f)) Ntf[f,,1] <- n0
 Ntf[1,,]
 
-A2(Ntf[1,,1],50)
 
 
 
@@ -80,12 +81,13 @@ for(t in 1:(tf-1)){
   }
 }
 
+## i think this works
 for(t in 1:(tf-1)){
   for(b in 0:75){
-    Ntf[b+1,,t+1] <- A2(Ntf[b+1,,t],f=b)%*%Ntf[b,,t]
+    Ntf[b+1,,t+1] <- A2(Ntf[b+1,,t],f=b)%*%Ntf[b+1,,t]
   }
 }
-
+##
 
 
 for(t in 1:(tf-1)){
@@ -99,7 +101,7 @@ for(t in 1:(tf-1)){
 sum(Ntf[1,,500])
 sum(Ntf[75,,500])
 length(Ntf[,1,1])
-Ntf[75,,]
+Ntf[76,,]
 
 totals <- rep(NA,length(Ntf[,1,1]))
 for(i in 1:length(Ntf[,1,1])){
