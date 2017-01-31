@@ -142,3 +142,40 @@ for(i in 1:length(Ntf[,1,1])){
 
 plot(1:length(totals),totals,type="p", xlab="f",ylab="stable pop size")
 
+
+
+
+
+
+
+#### this stuff is copy pasted from a markdown doc ####
+
+
+For fun, let's try doing the approximation we did in class for the linearization...
+```{r}
+eigenvectors <- matrix(NA,length(f),nstg)
+for(b in f){
+eigenvectors[b+1,] <- Re(eigen((A2(0,b)))$vectors[,1])
+}
+for(b2 in f){
+eigenvectors[b2+1,] <- eigenvectors[b2+1,]/sum(eigenvectors[b2+1,])
+}
+
+left.eigenvectors <- matrix(NA,length(f),nstg)
+for(b3 in f){
+left.eigenvectors[b3+1,] <- Re(eigen((t(A2(0,b3))))$vectors[,1])
+}
+for(b4 in f){
+left.eigenvectors[b4+1,] <- eigenvectors[b4+1,]/sum(eigenvectors[b4+1,])
+}
+
+NapproxMat <- matrix(NA, length(f),nstg)
+
+for(b5 in f){
+NapproxMat[b5+1,] <- sum(left.eigenvectors[b5+1]*n0)*eigenvectors[b5+1]*eigenvalues[b5+1]^(tf-1)
+}
+
+approx_totals <- rowSums(NapproxMat)
+
+plot(1:length(approx_totals),log(approx_totals),type="p", xlab="f",ylab="stable pop size") # plot totals out
+```
