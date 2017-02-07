@@ -1,0 +1,84 @@
+---
+title: "Assignment 4"
+author: "Michael Culshaw-Maurer"
+date: "2/2/2017"
+output: html_document
+---
+First let's put in some stuff we'll use the whole time:
+```{r}
+disp <- function(y,x){exp(-abs(y-m-x)/a)/(2*a)} # function for the dispersal kernel
+# values for the dispersal kernel and growth
+a <- 2
+m <- 1
+R <- 4
+
+K <- function(y,x)R*disp(y,x) # here's our final kernel
+
+n <- 200 # always going to use a length of 200 for discretization, just to be consistent
+```
+
+Now for Question 1:
+
+Create a function to generate a matrix from an L value:
+```{r}
+M <- function(L){
+deltax <- (L--L)/n # defining delta x based on the length L and n
+xs <- seq(-L+deltax/2,L-deltax/2,length=n) # create xs using midpoints
+A <- outer(xs,xs,K)*deltax # calculate the projection matrix for the given L value and discretization
+return(A)
+}
+```
+
+Create the matrix for an L value of 10
+```{r}
+L <- 10
+A <- M(L)
+```
+
+Now, we'll use the projection matrix to iterate the population forward in time, given a starting distribution of a density of 1 between -2 and 2.
+
+The population vectors need to be the same length as a row or column in the matrix, and then we need to figure out which entries in the starting vector should be 1 and which should be 0. This means we need to know the entries in our xs sequence, then figure out which ones are between -2 and 2. Since it's hard to figure this out in your head, I think it's easier to just generate the xs sequence (outside the function) and create a starting sequence based off of this.
+```{r}
+deltax <- (L--L)/n # making our delta x for L=10
+xs <- seq(-L+deltax/2,L-deltax/2,length=n) # xs for L=10
+starting <- rep(NA,length(xs)) # create a starting N(1,x)
+
+# now just populate the starting vector with 1s between -2 and 2, and 0s elsewhere
+starting[which(xs <= 2)] <- 1 
+starting[which(xs > 2)] <- 0
+starting[which(xs < -2)] <- 0
+
+results <- matrix(NA,nrow=5,ncol = length(xs)) # a matrix to hold our results, a distribution over 5 time steps
+results[1,] <- starting # the first time step is our starting population distribution
+
+# now we generate the rest of the time steps, 2 to 5, projected from our starting distribution
+for(i in 2:5){
+  results[i,] <- A%*%results[i-1,]
+}
+```
+
+Plot it out:
+```{r}
+plot(xs,results[5,],type="l",col=5,ylab="population density") # first plot the largest result
+for(l in 1:4){ # now plot the rest
+  lines(xs,results[l,],lty=l,col=l)
+}
+```
+
+Now for Question 2:
+```{r}
+L.seq <- seq(from=0,to=5,length=100) # create sequence of L values
+dom.eig <- rep(NA,length(L.seq)) # create a blank vector to hold the eigenvalues
+
+for(q in 1:length(L.seq)){ # for each value in the L sequence
+  dom.eig[q] <- Re(eigen(M(L.seq[q]))$values[1]) # use the M function to generate a matrix from a value in the L sequence, then calculate the leading eigenvalue of it
+}
+```
+
+Plot it up:
+```{r}
+plot(L.seq,dom.eig) # plot the dominant eigenvalues against the sequence of L values
+abline(h=1,lty=2,col="red") # add a horizontal line at an eigenvalue of 1
+
+```
+
