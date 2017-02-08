@@ -110,7 +110,7 @@ S <-w%o%v # outer product of w*v to make matrix of sensitivities
 barplot(S,beside=T) # plotting all sensitivities
 # each group of bars is a column
 # the highest bar is the TS entry that is first column, last row. It's the contribution of the first
-# stage to the LAST stage. It's not a realistic entry.
+# stage to the LAST stage. It's not realistic for this entry to be anything but 0.
 
 # now elasticities
 E <- S*TS/lambda

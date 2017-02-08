@@ -36,7 +36,6 @@ for(b in f){
 
 Plot it up:
 ```{r}
-length(eigenvalues) # check the length to be sure
 plot(f,eigenvalues,type="p", xlab="f",ylab="dominant eigenvalue") # plot eigenvalues against f
 abline(h=1,lty=2,col="red") # add a dashed red line at eigenvalue of 1
 ```
@@ -77,4 +76,6 @@ plot(1:length(totals),totals,type="p", xlab="f",ylab="stable pop size") # plot t
 
 
 ```
+
+
 
