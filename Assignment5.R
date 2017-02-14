@@ -166,10 +166,11 @@ optimOut2$par
 out7 <- as.data.frame(lsoda(n0,times,competition,optimOut2$par))
 out7
 
-plot(out7$time,out7$n1,type="l")
-lines(out7$time,out7$n2,col="red")
-points(out7$time,nTrue[,1])
+plot(out7$time,nTrue[,1])
 points(out7$time,nTrue[,2],col="red")
+lines(out7$time,out7$n1)
+lines(out7$time,out7$n2,col="red")
+
 
 
 ## the results of these two are different, and they seem pretty significant. I'm not sure which is right
