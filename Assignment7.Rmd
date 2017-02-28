@@ -1,0 +1,57 @@
+---
+title: "Assignment 7"
+author: "Michael Culshaw-Maurer"
+date: "2/28/2017"
+output: html_document
+---
+```{r}
+require(MASS)
+```
+
+
+Here's a modification of the lottery function we were given that also creates a kids matrix that will be used to calculate the stochastic growth rate.
+```{r}
+lottery.2=function(k=10,N0=rep(0.1,10),Sigma=diag(10),mu=seq(1,1.25,length=10),Tf=100,d=0.1){
+  N=matrix(0,Tf,k) # matrix which will be filled in
+  N[1,]=N0 # initial values
+  K=matrix(NA,Tf-1,k) # kids matrix is 1 time step less than N matrix
+  for(t in 2:Tf){ # starting the loop
+    K[t-1,]=exp(mvrnorm(n=1,mu=mu,Sigma=Sigma)) # random draw creating the lognormal number of kids
+    N[t,]=(1-d)*N[t-1,]+d*K[t-1,]*N[t-1,]/sum(K[t-1,]*N[t-1,]) # determining the next community state
+  }
+  return(list(N=N,K=K)) # returning both matrices 
+}
+```
+
+
+Now, a function that runs through k species, putting them through the lottery function, and then calculating and returning the stochastic growth rates for each of the k species.
+```{r}
+calc.stoch <- function(k,Sigma,Tf,d){
+  stoch <- numeric(length=k) # set up the vector for stochastic growth rates
+  for(z in 1:k){ # start the loop through k species
+    n0 <- rep((1/(k-1)),k) # initialize the starting values, except the one we set to 0
+    n0[z] <- 0 # set the z entry to zero
+    out <- lottery.2(N0 = n0,Sigma=Sigma,Tf=Tf,d=d) # run the lottery function
+    K <- out$K # rename the variables for ease of use in formula below
+    N <- out$N
+    N <- N[-Tf,] # remove final N matrix time step so it matches the K matrix in size
+    stoch[z] <- mean(log(1-d+d*K[,z]/rowSums(K*N))) # calculate each stochastic growth rate
+  }
+  return(stoch) # return the vector of stochastic growth rates
+}
+```
+
+
+Now run the function to calculate stochastic growth rate for both of the Sigmas given in the assignment.
+```{r}
+dat1 <- calc.stoch(k=10,Sigma=diag(10),Tf=10000,d=0.1)
+dat2 <- calc.stoch(k=10,Sigma=diag(10)*0.5+0.5,Tf=10000,d=0.1)
+```
+
+
+Combine our two simulations and make a barplot.
+```{r}
+dat <- rbind(dat1,dat2)
+barplot(dat,beside = T,legend=c("diag(10)", "diag(10)*0.5+0.5"),args.legend = list(x="topleft"))
+```
+

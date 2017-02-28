@@ -53,4 +53,53 @@ lines(xs,dnorm(xs,mean=meanX,sd=sdX))
 
 #### Poisson distribution ####
 
+# approximate pois with binom
+lambda <- 5
+n <- 120
+plot(dpois(0:(3*lambda),lambda = lambda),type="b") # we're just iterating from 0 to 3*lambda so the plot goes far enough out
+lines(dbinom(0:(3*lambda),size = n,prob=lambda/n),type="b",col="red") # we're going n number of time steps, and for each of them, we flip a coin with the probability of lambda/n
 
+
+#### infection stuff ####
+
+# read in SARS data, with goal to fit distributions to it
+
+load("GitHub/ECL_233/SARS.Rdata")
+SARS
+
+require(fitdistrplus)
+
+model1 <- fitdist(SARS,distr="pois",method="mle")
+summary(model1)
+mean(SARS) # this is the SAME as the value the model gives. The estimate for lambda is just the mean of the dataset
+
+# we are gonna use a compound distribution, the gamma-poisson, which gives you a neg. binomial
+
+model2 <- fitdist(SARS,distr="nbinom",method="mle")
+
+cdfcomp(list(model1,model2),legendtext=c("poisson","neg binom")) # cdf is cumulative density function. y axis is probability that you infect x or fewer individuals. neg binom is way better than poisson
+model1$aic
+model2$aic # model 2 
+
+# simulate a branching process (disease outbreak). It's like the exponential growth model for individual based models. each individual creates a certain number of infected individuals. we have a fixed discrete distribution for infection. idk some other stuff sebastian said
+
+# sample from SARS data to determine # of folks infected by each individual in a given generation of the outbreak
+
+reps <- 5000 # of outbreaks
+Tf <- 15 # number of generations for each simulation
+N <- matrix(NA,Tf,reps)
+N[1,] <- 1
+
+# run a double loop to go through reps and time
+
+for(i in 1:reps){
+  for(j in 1:(Tf-1)){ # we calculate # of individuals you infect during your infectious period, so generations don't overlap
+    if(N[j,i]>0){
+    N[j+1,i] <- sum(sample(SARS,size=N[j,i],replace=T)) 
+    }else{N[j+1,i]<-0} # if N[j,i] is 0, N[j+1,i] is 0
+  }
+}
+
+matplot(N,type="l",pch=".",xlim=c(8,15))
+
+# what if we wanna know probability of no outbreak? use a probability generating function?
