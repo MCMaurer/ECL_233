@@ -43,10 +43,8 @@ saveGIF({for( w in seq(from=.0001, to=.005, by=.0001)){
   out   <- ode(yini, times, ExpGrow, pars)
   
   
-  par(mfrow=c(1,2))
   matplot(out[ , 1], out[ , 2], type = "l", xlab = "time", ylab = "Number",
-          main=paste("r=",w), lwd = 2, xlim=c(0,1000), ylim=c(0,100),
-          col=1:2, lty=1)}},
+          main=paste("r=",w), lwd = 2, xlim=c(0,1000), ylim=c(0,100) lty=1)}},
   movie.name = "growth4.gif", interval = 0.3, clean=TRUE)
 
 ```

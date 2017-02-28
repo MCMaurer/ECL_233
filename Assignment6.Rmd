@@ -1,0 +1,101 @@
+---
+title: "Assignment 6"
+author: "Michael Culshaw-Maurer"
+date: "2/20/2017"
+output: html_document
+---
+
+First, some parameters that we'll use the whole time:
+```{r}
+load("/Users/MJ/GitHub/ECL_233/SARS.Rdata")
+reps <- 10000
+Tf <- 10
+q <- 0.4
+```
+
+
+First up is partial absolute control. First, take the number of infected individuals, then determine whether they're part of your quarantined subset using a coin flip weighted based on q. Then, take the individuals that are NOT in quarantine and have them draw a # of infections from the SARS data, and total this up.
+```{r}
+Npa <- matrix(NA,Tf,reps) # make a matrix with Tf and reps
+Npa[1,] <- 1 # start with one infected individual in each rep
+
+for(i in 1:reps){
+  for(t in 1:(Tf-1)){
+    if(Npa[t,i]>0){ # if there is still at least one infected individual
+      x <- rbinom(1,size=Npa[t,i],1-q) # flip the coin to determine how many of the current individuals are not in your protected subgroup, define this as x
+      Npa[t+1,i]=sum(sample(SARS,size=x,replace=TRUE)) # now sample from those that are NOT in your protected subgroup
+      }else{Npa[t+1,i]<-0} # if nobody is infected now, nobody is infected next time
+  }
+}
+```
+
+
+Next up is homogenous partial control. For this one, first each infected individual draws from the SARS data, making a number of "possible infections". Then for each possible infection, we flip a coin weighted based on q in order to determine the success of each possible infection (whether the mask worked or not). Then total up the number of successful infections
+```{r}
+Nhp <- matrix(NA,Tf,reps) # same thing with the matrix as above
+Nhp[1,] <- 1
+
+for(i in 1:reps){
+  for(t in 1:(Tf-1)){
+    if(Nhp[t,i]>0){
+      possible.infections <- sum(sample(SARS,size=Nhp[t,i],replace=TRUE)) # draw from SARS data to get the total possible infections
+      Nhp[t+1,i]=rbinom(1,size=possible.infections,prob = 1-q) # flip a coin based on q. The # of times is the number of possible infections
+    }else{Nhp[t+1,i]<-0} # same thing as above, no infection now = no infection later
+  }
+}
+```
+
+Plot histograms of both outputs
+```{r}
+hist(Npa[Tf,which(Npa[Tf,]!=0)])
+hist(Nhp[Tf,which(Nhp[Tf,]!=0)])
+```
+
+
+Part 2. Now we  just loop the two functions through different q values and compute the prob of extinction for each q value and each strategy. First up is homogenous partial control.
+```{r}
+q.seq <- seq(from=0,to=1,by=0.01) # create a sequence of q values
+Nhp.prob <- numeric(length(q.seq)) # create empty vector of extinction probs
+
+for(j in 1:length(q.seq)){ # do what we did before, but loop through q.seq
+for(i in 1:reps){
+  for(t in 1:(Tf-1)){
+    if(Nhp[t,i]>0){
+      possible.infections <- sum(sample(SARS,size=Nhp[t,i],replace=TRUE))
+      Nhp[t+1,i]=rbinom(1,size=possible.infections,prob = 1-q.seq[j])
+    }else{Nhp[t+1,i]<-0}
+  }
+}
+Nhp.prob[j] <- length(which(Nhp[Tf,]==0))/reps # for each q value, calculate probability of extinction
+}
+
+```
+
+
+Same exact thing with partial absolute control.
+```{r}
+Npa.prob <- numeric(length(q.seq))
+
+for(j in 1:length(q.seq)){
+for(i in 1:reps){
+  for(t in 1:(Tf-1)){
+    if(Npa[t,i]>0){
+      x <- rbinom(1,size=Npa[t,i],1-q.seq[j]) # flip the coin to determine how many of the current individuals are not in your protected subgroup, define this as x
+      Npa[t+1,i]=sum(sample(SARS,size=x,replace=TRUE)) # now sample from those that are NOT in your protected subgroup
+    }else{Npa[t+1,i]<-0}
+  }
+}
+  Npa.prob[j] <- length(which(Npa[Tf,]==0))/reps
+}
+```
+
+
+Now plot them against each other:
+```{r}
+plot(q.seq,Npa.prob,type="l",ylab="prob of extinction at t=10",xlab="q value")
+lines(q.seq,Nhp.prob,col="red")
+legend("bottomright", col=c("black","red"),
+       legend=c("partial absolute","homogenous partial"),lty = rep(1,2),cex=0.75)
+
+```
+
